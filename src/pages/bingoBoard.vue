@@ -1,11 +1,11 @@
 <template>
-  <section class="page-board col column">
-    <div class="col grids">
+  <section class="page-board">
+    <div class="grids">
       <div class="flex flex-center ">
         <div class="selectedNumber shadow-2">{{ selectedNumber }}</div>
       </div>
-      <div class="board flex flex-center">
-        <div class="col boardNumbers">
+      <div class="board">
+        <div class="fit boardNumbers">
           <div
             v-for="number in 90" :key="number"
             :class="{ 'selectedNumbers': isInSelectedNumber(number), 'theNumber': isSelectedNumber(number) }"
@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <footer class="flex footer">
+    <footer class="footer">
       <q-btn flat icon="mdi-dice-multiple" @click="selectRandomNumber" label="Tirage" />
       <q-space />
       <q-btn flat dense icon="mdi-restart" @click="resetGame" label="Réinitialiser" />
