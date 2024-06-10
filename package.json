@@ -1,9 +1,9 @@
 {
   "name": "bingo",
   "version": "0.0.1",
-  "description": "A Quasar Project",
-  "productName": "Quasar App",
-  "author": "clement-delalandre <clement.delalandre@interactiv-group.com>",
+  "description": "Bingo - Run i calle",
+  "productName": "Bingo - Run i calle",
+  "author": "clement-delalandre <clement.delalandre@gmail.com>",
   "type": "module",
   "private": true,
   "scripts": {
