@@ -31,6 +31,10 @@ export default configure((/* ctx */) => {
           }
         }, { server: false }]
       ]
+      // extendViteConf (viteConf, { isServer, isClient }) {
+      //   viteConf.base = './'
+      //   viteConf.build.base = './'
+      // }
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
