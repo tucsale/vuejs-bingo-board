@@ -22,7 +22,7 @@
     </section>
 
     <footer class="footer">
-      <q-btn flat icon="mdi-dice-multiple" @click="selectRandomNumber" label="Tirage" />
+      <q-btn flat icon="mdi-dice-multiple" ref="btnSelectRandomNumber" @click="selectRandomNumber" label="Tirage" />
       <q-space />
       <!-- DARK MODE -->
       <q-toggle dense keep-color color="grey" checked-icon="light_mode" unchecked-icon="dark_mode" class="q-mr-md" v-model="isDark" />
@@ -64,8 +64,9 @@ for (let i = 1; i <= 90; i++) {
 const selectedNumbers = ref($q.localStorage.getItem('selectedNumbers') || [])
 const unselectedNumbers = ref($q.localStorage.getItem('unselectedNumbers') || defaultUnselectedNumbers)
 const selectedNumber = ref($q.localStorage.getItem('selectedNumber') || 0)
-const typeOfGame = ref($q.localStorage.getItem('typeOfGame') || 'La ligne - Quine')
-console.log(selectedNumber.value, $q.localStorage.getItem('selectedNumber'))
+const typeOfGame = ref($q.localStorage.getItem('typeOfGame') || 'Quine')
+const btnSelectRandomNumber = ref(null)
+
 // Save selected and unselected numbers to local storage
 const saveToLocalStorage = () => {
   $q.localStorage.setItem('unselectedNumbers', unselectedNumbers.value)
@@ -78,24 +79,25 @@ saveToLocalStorage()
 const resetGame = () => {
   $q.dialog({
     title: 'Nouveau jeu',
-    message: '<b>T\'es sûr de vouloir faire çà ?</b><br> Si oui choisis le type de jeu :',
+    message: '<b>T\'es sûr de vouloir faire çà ?</b><br> Si oui, choisis le type de jeu :',
     cancel: true,
     persistent: true,
     html: true,
     options: {
       type: 'radio',
-      model: 'La ligne - Quine',
+      model: 'Quine',
       // inline: true
       items: [
-        { label: 'La ligne - Quine', value: 'La ligne - Quine' },
-        { label: 'La double ligne - Double Quine', value: 'La double ligne - Double Quine' },
-        { label: 'Le carton plein', value: 'Le carton plein' }
+        { label: 'Quine', value: 'Quine' },
+        { label: 'Double Quine', value: 'Double Quine' },
+        { label: 'Carton plein', value: 'Carton plein' }
       ]
     }
   }).onOk((data) => {
     unselectedNumbers.value = defaultUnselectedNumbers
     selectedNumbers.value = []
     selectedNumber.value = 0
+    btnSelectRandomNumber.value.focus()
     saveToLocalStorage()
     typeOfGame.value = data
     $q.localStorage.setItem('typeOfGame', typeOfGame.value)
