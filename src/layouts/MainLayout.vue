@@ -22,31 +22,51 @@
     </section>
 
     <footer class="footer">
-      <q-btn outline autofocus icon="mdi-dice-multiple" ref="btnSelectRandomNumber" @click="selectRandomNumber" label="Tirage" class="q-ml-md"  />
+      <q-btn outline autofocus icon="mdi-dice-multiple" ref="btnSelectRandomNumber" @click="selectRandomNumber" label="Tirage" class="q-ml-md" />
       <q-space />
       <!-- DARK MODE -->
-      <q-btn outline dense icon="mdi-archive-clock-outline" ref="btnResetGame" @click="showHistory = true" label="History"  class="q-mr-md"  />
+      <q-btn outline dense icon="mdi-archive-clock-outline" ref="btnResetGame" @click="showHistory = true" label="Parties précédentes" class="q-mr-md" />
       <q-toggle dense keep-color color="grey" checked-icon="light_mode" unchecked-icon="dark_mode" class="q-mr-md" v-model="isDark" />
-      <q-btn outline dense icon="mdi-restart" ref="btnResetGame" @click="resetGame" label="Réinitialiser" class="q-mr-md" />
+      <q-btn outline dense icon="mdi-restart" ref="btnResetGame" @click="resetGame" label="Nouvelle partie" class="q-mr-md" />
     </footer>
     <q-dialog v-model="showHistory">
-      <q-card style="min-width: 600px; width: 70vw; max-height: 70vh;">
-        <div class="q-pa-md">
-          <q-list bordered>
+      <q-card style="min-width: 600px; width: 70vw; max-height: 70vh; min-height: 70vh;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Les parties précédentes</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+        <q-card-section class="q-pa-md fit">
+          <q-list bordered separator class="fit">
             <q-item v-for="(game, index) in gameHistory" :key="game.dateOfGame">
+              <q-item-section>
+                <q-item-label>{{ game.dateOfGame }}</q-item-label>
+                <q-item-label class="oldGameNumbers">
+                  <div v-for="num in game.selectedNumbers" :key="num" class="numbers">{{ num }}</div>
+                </q-item-label>
+              </q-item-section>
+
+              <q-item-section side top>
+                <q-item-label>{{ game.typeOfGame }}</q-item-label>
+                <q-btn flat dense icon="mdi-delete" @click="deleteGame(index)" />
+              </q-item-section>
+            </q-item>
+            <!-- <q-item v-for="(game, index) in gameHistory" :key="game.dateOfGame">
               <q-item-section>
                 <q-item-label>{{ game.typeOfGame }}</q-item-label>
                 <q-item-label caption>{{ game.dateOfGame }}</q-item-label>
               </q-item-section>
               <q-item-section>
-                <q-item-label>{{ game.selectedNumbers.join(', ') }}</q-item-label>
+                <q-item-label class="oldGameNumbers">
+                  <div v-for="num in game.selectedNumbers" :key="num" class="numbers">{{ num }}</div>
+                </q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-btn flat dense icon="mdi-delete" @click="deleteGame(index)" />
               </q-item-section>
-            </q-item>
+            </q-item> -->
           </q-list>
-        </div>
+        </q-card-section>
       </q-card>
     </q-dialog>
   </q-layout>
@@ -141,7 +161,6 @@ const changeTypeOfGame = () => {
 
 // Reset the game by resetting the values
 const resetGame = (el) => {
-  console.log(el)
   $q.dialog({
     title: 'Nouveau jeu',
     message: '<b>T\'es sûr de vouloir faire çà ?</b><br> Si oui, choisis le type de jeu :',
@@ -151,7 +170,6 @@ const resetGame = (el) => {
     options: {
       type: 'radio',
       model: 'Quine',
-      // inline: true
       items: [
         { label: 'Quine', value: 'Quine' },
         { label: 'Double Quine', value: 'Double Quine' },
@@ -159,18 +177,17 @@ const resetGame = (el) => {
       ]
     }
   }).onOk((data) => {
+    gameHistory.value.push({
+      typeOfGame: typeOfGame.value,
+      selectedNumbers: selectedNumbers.value.sort(),
+      dateOfGame: new Date().toLocaleString()
+    })
+    $q.localStorage.setItem('gameHistory', gameHistory.value)
     unselectedNumbers.value = defaultUnselectedNumbers
     selectedNumbers.value = []
     selectedNumber.value = 0
     btnSelectRandomNumber.value.$el.focus()
     btnResetGame.value.$el.blur()
-    gameHistory.value.push({
-      typeOfGame: typeOfGame.value,
-      selectedNumbers: selectedNumbers.value,
-      dateOfGame: new Date().toLocaleString()
-    })
-    $q.localStorage.setItem('gameHistory', gameHistory.value)
-
     saveToLocalStorage()
     typeOfGame.value = data
     $q.localStorage.setItem('typeOfGame', typeOfGame.value)
