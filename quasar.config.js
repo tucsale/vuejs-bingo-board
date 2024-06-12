@@ -11,7 +11,8 @@ export default configure((/* ctx */) => {
       'app.sass'
     ],
     extras: [
-      'mdi-v7'
+      'mdi-v7',
+      'material-icons'
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build

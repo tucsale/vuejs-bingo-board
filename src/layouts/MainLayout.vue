@@ -2,19 +2,19 @@
   <q-layout view="hHh lpR fFf" class="page">
     <header>
       <div class="logo parcudup">
-      <!-- <img src="/squash.svg" class="logo" fit="contain" /> -->
-    </div>
-      <div class="typeOfGame">{{ typeOfGame }}</div>
-    <div class="logo runicalle">
-      <!-- <img src="/runicalle.svg" class="logo" fit="contain" /> -->
-    </div>
+        <!-- <img src="/squash.svg" class="logo" fit="contain" /> -->
+      </div>
+      <div class="typeOfGame" @click="changeTypeOfGame">{{ typeOfGame }}</div>
+      <div class="logo runicalle">
+        <!-- <img src="/runicalle.svg" class="logo" fit="contain" /> -->
+      </div>
     </header>
     <section class="selectedNumberContainer">
-      <div class="selectedNumber shadow-2">{{ selectedNumber }}</div>
+      <div class="selectedNumber">{{ selectedNumber }}</div>
     </section>
     <section class="boardNumbers">
       <div
-        v-for="number in 90" :key="number"
+        v-for="number in listOfNumber" :key="number"
         :class="{ 'selectedNumbers': isInSelectedNumber(number), 'theNumber': isSelectedNumber(number) }"
         class="numbers">
         {{ number }}
@@ -22,12 +22,33 @@
     </section>
 
     <footer class="footer">
-      <q-btn flat icon="mdi-dice-multiple" ref="btnSelectRandomNumber" @click="selectRandomNumber" label="Tirage" />
+      <q-btn outline autofocus icon="mdi-dice-multiple" ref="btnSelectRandomNumber" @click="selectRandomNumber" label="Tirage" class="q-ml-md"  />
       <q-space />
       <!-- DARK MODE -->
+      <q-btn outline dense icon="mdi-archive-clock-outline" ref="btnResetGame" @click="showHistory = true" label="History"  class="q-mr-md"  />
       <q-toggle dense keep-color color="grey" checked-icon="light_mode" unchecked-icon="dark_mode" class="q-mr-md" v-model="isDark" />
-      <q-btn flat dense icon="mdi-restart" @click="resetGame" label="Réinitialiser" />
+      <q-btn outline dense icon="mdi-restart" ref="btnResetGame" @click="resetGame" label="Réinitialiser" class="q-mr-md" />
     </footer>
+    <q-dialog v-model="showHistory">
+      <q-card style="min-width: 600px; width: 70vw; max-height: 70vh;">
+        <div class="q-pa-md">
+          <q-list bordered>
+            <q-item v-for="(game, index) in gameHistory" :key="game.dateOfGame">
+              <q-item-section>
+                <q-item-label>{{ game.typeOfGame }}</q-item-label>
+                <q-item-label caption>{{ game.dateOfGame }}</q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ game.selectedNumbers.join(', ') }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn flat dense icon="mdi-delete" @click="deleteGame(index)" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 
@@ -38,6 +59,15 @@ import { useQuasar } from 'quasar'
 defineOptions({
   name: 'MainLayout'
 })
+const listOfNumber = []
+listOfNumber.push(90)
+
+for (let i = 0; i <= 8; i++) {
+  for (let j = 0; j <= 9; j++) {
+    if (i === 0 && j === 0) continue
+    listOfNumber.push(i * 10 + j)
+  }
+}
 
 const $q = useQuasar()
 const isDark = computed({
@@ -53,7 +83,6 @@ const isDark = computed({
 onBeforeMount(() => {
   const isDarkLS = $q.localStorage.getItem('bingo-dark-mode')
   $q.dark.set(isDarkLS)
-  console.log('onBeforeMount', selectedNumber.value, $q.localStorage.getItem('selectedNumber'))
 })
 
 // Generate default unselected numbers
@@ -65,7 +94,10 @@ const selectedNumbers = ref($q.localStorage.getItem('selectedNumbers') || [])
 const unselectedNumbers = ref($q.localStorage.getItem('unselectedNumbers') || defaultUnselectedNumbers)
 const selectedNumber = ref($q.localStorage.getItem('selectedNumber') || 0)
 const typeOfGame = ref($q.localStorage.getItem('typeOfGame') || 'Quine')
+const gameHistory = ref($q.localStorage.getItem('gameHistory') || [])
+const showHistory = ref(false)
 const btnSelectRandomNumber = ref(null)
+const btnResetGame = ref(null)
 
 // Save selected and unselected numbers to local storage
 const saveToLocalStorage = () => {
@@ -75,8 +107,41 @@ const saveToLocalStorage = () => {
 }
 saveToLocalStorage()
 
+const deleteGame = (index) => {
+  $q.dialog({
+    title: 'Supprimer le jeu',
+    message: 'T\'es sûr de vouloir faire çà ?',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    gameHistory.value.splice(index, 1)
+    $q.localStorage.setItem('gameHistory', gameHistory.value)
+  })
+}
+const changeTypeOfGame = () => {
+  $q.dialog({
+    title: 'Type de jeu',
+    message: 'Choisis le type de jeu :',
+    cancel: true,
+    persistent: true,
+    options: {
+      type: 'radio',
+      model: typeOfGame.value,
+      items: [
+        { label: 'Quine', value: 'Quine' },
+        { label: 'Double Quine', value: 'Double Quine' },
+        { label: 'Carton plein', value: 'Carton plein' }
+      ]
+    }
+  }).onOk((data) => {
+    typeOfGame.value = data
+    $q.localStorage.setItem('typeOfGame', typeOfGame.value)
+  })
+}
+
 // Reset the game by resetting the values
-const resetGame = () => {
+const resetGame = (el) => {
+  console.log(el)
   $q.dialog({
     title: 'Nouveau jeu',
     message: '<b>T\'es sûr de vouloir faire çà ?</b><br> Si oui, choisis le type de jeu :',
@@ -97,7 +162,15 @@ const resetGame = () => {
     unselectedNumbers.value = defaultUnselectedNumbers
     selectedNumbers.value = []
     selectedNumber.value = 0
-    btnSelectRandomNumber.value.focus()
+    btnSelectRandomNumber.value.$el.focus()
+    btnResetGame.value.$el.blur()
+    gameHistory.value.push({
+      typeOfGame: typeOfGame.value,
+      selectedNumbers: selectedNumbers.value,
+      dateOfGame: new Date().toLocaleString()
+    })
+    $q.localStorage.setItem('gameHistory', gameHistory.value)
+
     saveToLocalStorage()
     typeOfGame.value = data
     $q.localStorage.setItem('typeOfGame', typeOfGame.value)
