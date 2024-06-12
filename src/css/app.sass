@@ -16,7 +16,6 @@ html, body
   color: grey
 
 body.body--light
-
   --border-number-color: #22c1c3
   --secondary: #fdbb2d
   --border-selected-number-color: #F92C85
@@ -27,9 +26,10 @@ body.body--light
 
 body.body--dark
   --border-number-color: #222222
+  --secondary: #787878
   --border-selected-number-color: #22222253
-  --font-selected-number-color: #222222
-  --font-header-color: #222222
+  --font-selected-number-color: #000000
+  --font-header-color: #6e5959
   background-color: #adbfc8
   background: linear-gradient(144deg, rgba(173,191,200,1) 73%, rgba(173,191,200,0.7441570378151261) 100%)
 
@@ -103,7 +103,7 @@ footer
     border-radius: 2vmin
     // border: 4px solid var(--border-selected-number-color)
     // border-image: linear-gradient(45deg, var(--border-selected-number-color), var(--font-selected-number-color)) 1
-    font-size: 35vmin
+    font-size: 40vmin
     font-weight: 900
     text-align: center
     color: var(--font-selected-number-color)
@@ -190,3 +190,5 @@ footer
     align-items: center
     height: auto
     width: 3vmin
+    min-width: 25px
+
